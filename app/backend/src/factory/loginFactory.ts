@@ -1,4 +1,4 @@
-import LoginController from '../controllers/loginController';
+import LoginController from '../controllers/LoginController';
 import LoginService from '../services/LoginService';
 import LoginRepository from '../repositories/LoginRepository';
 

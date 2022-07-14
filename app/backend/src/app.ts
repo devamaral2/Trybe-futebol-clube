@@ -1,7 +1,7 @@
 import * as express from 'express';
-import loginFactory from './factory/loginFactory';
 import errorMiddleware from './middlewares/errorMiddleware';
-import checkLoginFields from './middlewares/checkLoginFileds';
+import loginRoutes from './routes/login.routes';
+import teamRoutes from './routes/team.routes';
 
 class App {
   public app: express.Express;
@@ -25,11 +25,9 @@ class App {
 
     this.app.use(express.json());
     this.app.use(accessControl);
-    this.app.post(
-      '/login',
-      checkLoginFields,
-      (req, res, next) => loginFactory().logIn(req, res, next),
-    );
+
+    this.app.use('/login', loginRoutes);
+    this.app.use('/teams', teamRoutes);
     this.app.use(errorMiddleware);
   }
 

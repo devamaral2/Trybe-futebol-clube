@@ -8,7 +8,6 @@ export default class LoginRepository implements i.ILoginRepository {
 
   async logIn(email: string): Promise<i.IUser> {
     const [res] = await this.model.findAll({ where: { email } });
-    // console.log('---------rep----------', res);
     return res;
   }
 }

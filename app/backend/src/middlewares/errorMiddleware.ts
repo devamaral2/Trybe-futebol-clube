@@ -4,10 +4,20 @@ interface IError {
   status: number;
   message: string;
 }
+
 const getStatus = (message: string): IError => {
-  if (message === 'Incorrect email or password') return { status: 401, message };
-  if (message === 'All fields must be filled') return { status: 400, message };
-  return { status: 500, message: 'Internal server error' };
+  switch (message) {
+    case 'Incorrect_email_or_password':
+      return { status: 401, message };
+    case 'Token must be a valid token':
+      return { status: 401, message };
+    case 'unauthorized user':
+      return { status: 401, message };
+    case 'All fields must be filled':
+      return { status: 400, message };
+    default:
+      return { status: 500, message: 'Internal server error' };
+  }
 };
 
 const errorMiddleware = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
