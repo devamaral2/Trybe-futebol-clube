@@ -1,4 +1,7 @@
 import * as express from 'express';
+import loginFactory from './factory/loginFactory';
+import errorMiddleware from './middlewares/errorMiddleware';
+import checkLoginFields from './middlewares/checkLoginFileds';
 
 class App {
   public app: express.Express;
@@ -22,6 +25,12 @@ class App {
 
     this.app.use(express.json());
     this.app.use(accessControl);
+    this.app.post(
+      '/login',
+      checkLoginFields,
+      (req, res, next) => loginFactory().logIn(req, res, next),
+    );
+    this.app.use(errorMiddleware);
   }
 
   public start(PORT: string | number):void {

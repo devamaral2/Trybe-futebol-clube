@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import db from '.';
-import Team from './Team';
+import Team from './team';
 // import OtherModel from './OtherModel';
 
 class Match extends Model {
