@@ -24,6 +24,6 @@ export default class MatchService implements i.IMatchService {
   async finishMatch(id: string): Promise<string> {
     const updatedMatch = await this.MatchRepository.finishMatch(id);
     if (updatedMatch === 1) return 'Finished';
-    return 'Not updated';
+    return 'Not Updated';
   }
 }
