@@ -6,5 +6,6 @@ import teamFactory from '../factory/teamFactory';
 const routes = express.Router();
 
 routes.get('/', (req, res, next) => teamFactory().getAll(req, res, next));
+routes.get('/:id', (req, res, next) => teamFactory().findByPk(req, res, next));
 
 export default routes;

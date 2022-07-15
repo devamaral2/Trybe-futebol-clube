@@ -10,4 +10,9 @@ export default class TeamRepository implements i.ITeamRepository {
     const teams = await this.model.findAll();
     return teams;
   }
+
+  async findByPk(id: string) {
+    const team = await this.model.findByPk(id);
+    return team;
+  }
 }

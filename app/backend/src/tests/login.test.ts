@@ -1,6 +1,7 @@
 import * as chai from 'chai';
 import { before } from 'mocha';
 import * as sinon from 'sinon';
+import * as jwt from 'jsonwebtoken';
 // @ts-ignore
 import chaiHttp = require('chai-http');
 
@@ -78,3 +79,27 @@ describe('Rota /login: casos de erro', () => {
     expect(response.body).to.be.eql({ message: 'Incorrect email or password' });
   });
 });
+
+// describe('Rota /login/validate: caso de sucesso', () => {
+
+//   before(() => {
+//     sinon.stub(jwt, 'verify')
+//       .resolves({ data: {
+//         username: 'Admin',
+//         role: 'admin',
+//         email: 'admin@admin.com',
+//       } }) 
+//   });
+
+//   after(() => {
+//     (jwt.verify as sinon.SinonStub)
+//       .restore();
+//   })
+
+//   it('quando o usuário é administrador', async () => {
+//     const response = await chai.request(app).get('/login/validate').set('authorization', 'token');
+//     console.log(req.headers.authorization)
+//     expect(response.status).to.be.equal(200);
+//     expect(response.body).to.be.eql({ role: 'admin' }); 
+//   });
+// });

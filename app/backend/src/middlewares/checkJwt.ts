@@ -12,6 +12,7 @@ const checkJwt = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!token) throw error;
     const decoded = jwt.verify(token, secret);
+    console.log(decoded);
     const { data } = decoded as jwt.JwtPayload;
     req.headers.role = data.role;
     return next();

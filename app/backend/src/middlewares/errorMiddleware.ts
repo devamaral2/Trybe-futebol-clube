@@ -7,7 +7,7 @@ interface IError {
 
 const getStatus = (message: string): IError => {
   switch (message) {
-    case 'Incorrect_email_or_password':
+    case 'Incorrect email or password':
       return { status: 401, message };
     case 'Token must be a valid token':
       return { status: 401, message };
