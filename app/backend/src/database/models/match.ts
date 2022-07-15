@@ -58,7 +58,7 @@ Match.belongsTo(Team, {
 });
 
 Match.belongsTo(Team, {
-  foreignKey: 'awayTeam', as: 'awayHome',
+  foreignKey: 'awayTeam', as: 'teamAway',
 });
 
 // OtherModel.belongsTo(Example, { foreignKey: 'campoA', as: 'campoEstrangeiroA' });

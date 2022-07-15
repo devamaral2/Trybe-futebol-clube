@@ -15,6 +15,17 @@ export default class MatchController {
     }
   }
 
+  async getAllFiltered(req: Request, res: Response, next: NextFunction) {
+    const { q } = req.query;
+    console.log(q);
+    try {
+      const matches = await this.matchService.getAllFiltered();
+      return res.status(200).json(matches);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   // async findByPk(req: Request, res: Response, next: NextFunction) {
   //   const { id } = req.params;
   //   try {

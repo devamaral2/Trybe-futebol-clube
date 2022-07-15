@@ -5,6 +5,7 @@ import matchFactory from '../factory/matchFactory';
 
 const routes = express.Router();
 
+routes.get('/search', (req, res, next) => matchFactory().getAllFiltered(req, res, next));
 routes.get('/', (req, res, next) => matchFactory().getAll(req, res, next));
 // routes.get('/:id', (req, res, next) => teamFactory().findByPk(req, res, next));
 

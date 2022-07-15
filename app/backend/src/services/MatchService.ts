@@ -11,6 +11,11 @@ export default class MatchService implements i.IMatchService {
     return matches;
   }
 
+  async getAllFiltered(): Promise<Model[]> {
+    const matches = await this.MatchRepository.getAllFiltered();
+    return matches;
+  }
+
   // async findByPk(id: string) {
   //   const team = await this.MatchRepository.findByPk(id);
   //   return team;

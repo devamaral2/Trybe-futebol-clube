@@ -13,9 +13,14 @@ export default class MatchRepository implements i.IMatchRepository {
         model: Team, as: 'teamHome', attributes: ['teamName'],
       },
       {
-        model: Team, as: 'awayHome', attributes: ['teamName'],
+        model: Team, as: 'teamAway', attributes: ['teamName'],
       },
     ] });
+    return matches;
+  }
+
+  async getAllFiltered(): Promise<Model[]> {
+    const matches = await this.model.findAll();
     return matches;
   }
 
