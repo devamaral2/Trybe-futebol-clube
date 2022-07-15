@@ -13,6 +13,10 @@ const getStatus = (message: string): IError => {
       return { status: 401, message };
     case 'unauthorized user':
       return { status: 401, message };
+    case 'It is not possible to create a match with two equal teams':
+      return { status: 401, message };
+    case 'There is no team with such id!':
+      return { status: 404, message };
     case 'All fields must be filled':
       return { status: 400, message };
     default:

@@ -19,13 +19,36 @@ export default class MatchRepository implements i.IMatchRepository {
     return matches;
   }
 
-  async getAllFiltered(): Promise<Model[]> {
-    const matches = await this.model.findAll();
+  async getAllFiltered(inProgress: boolean): Promise<Model[]> {
+    const matches = await this.model.findAll(
+      {
+        where: {
+          inProgress,
+        },
+
+        include: [
+          {
+            model: Team, as: 'teamHome', attributes: ['teamName'],
+          },
+          {
+            model: Team, as: 'teamAway', attributes: ['teamName'],
+          },
+        ],
+      },
+    );
     return matches;
   }
 
-  // async findByPk(id: string) {
-  //   const team = await this.model.findByPk(id);
-  //   return team;
-  // }
+  async create(payLoad: i.INewMatch): Promise<Model> {
+    const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals } = payLoad;
+    const newTeam = await this.model.create({
+      homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress: true });
+    console.log(newTeam);
+    return newTeam;
+  }
+
+  async finishMatch(id: string): Promise<number> {
+    const [updatedMatch] = await this.model.update({ inProgress: false }, { where: { id } });
+    return updatedMatch;
+  }
 }

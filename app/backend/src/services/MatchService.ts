@@ -11,13 +11,19 @@ export default class MatchService implements i.IMatchService {
     return matches;
   }
 
-  async getAllFiltered(): Promise<Model[]> {
-    const matches = await this.MatchRepository.getAllFiltered();
+  async getAllFiltered(inProgress: boolean): Promise<Model[]> {
+    const matches = await this.MatchRepository.getAllFiltered(inProgress);
     return matches;
   }
 
-  // async findByPk(id: string) {
-  //   const team = await this.MatchRepository.findByPk(id);
-  //   return team;
-  // }
+  async create(payLoad: i.INewMatch): Promise<Model> {
+    const newMatch = await this.MatchRepository.create(payLoad);
+    return newMatch;
+  }
+
+  async finishMatch(id: string): Promise<string> {
+    const updatedMatch = await this.MatchRepository.finishMatch(id);
+    if (updatedMatch === 1) return 'Finished';
+    return 'Not updated';
+  }
 }

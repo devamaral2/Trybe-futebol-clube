@@ -7,10 +7,10 @@ export interface ITeam {
 
 export interface ITeamService {
   getAll(): Promise<Model[]>;
-  findByPk(id: string): Promise<Model | null>;
+  findByPk(id: number): Promise<Model | null>;
 }
 
 export interface ITeamRepository {
   getAll(): Promise<Model[]>;
-  findByPk(id: string): Promise<Model | null>;
+  findByPk(id: number): Promise<Model | null>;
 }

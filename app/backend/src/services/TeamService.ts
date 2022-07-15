@@ -11,7 +11,7 @@ export default class TeamService implements i.ITeamService {
     return teams;
   }
 
-  async findByPk(id: string) {
+  async findByPk(id: number) {
     const team = await this.TeamRepository.findByPk(id);
     return team;
   }
