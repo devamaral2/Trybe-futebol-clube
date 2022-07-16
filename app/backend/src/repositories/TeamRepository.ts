@@ -1,5 +1,6 @@
 import * as i from '../protocols/teamProtocols';
 import Model from '../database/models/team';
+import Match from '../database/models/match';
 
 export default class TeamRepository implements i.ITeamRepository {
   constructor(private model = Model) {
@@ -8,6 +9,18 @@ export default class TeamRepository implements i.ITeamRepository {
 
   async getAll(): Promise<Model[]> {
     const teams = await this.model.findAll();
+    return teams;
+  }
+
+  async getAllWithMatches(where: string): Promise<any> {
+    const teams = await this.model.findAll({ include: [
+      {
+        model: Match,
+        as: where,
+        where: { inProgress: false },
+        attributes: { exclude: ['id', 'homeTeam', 'awayTeam', 'inProgress'] },
+      },
+    ] });
     return teams;
   }
 
