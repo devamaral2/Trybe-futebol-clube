@@ -16,5 +16,6 @@ routes.post(
   (req, res, next) => matchFactory().create(req, res, next),
 );
 routes.patch('/:id/finish', (req, res, next) => matchFactory().finishMatch(req, res, next));
+routes.patch('/:id', (req, res, next) => matchFactory().updateMatch(req, res, next));
 
 export default routes;

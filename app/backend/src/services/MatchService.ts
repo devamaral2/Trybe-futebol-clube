@@ -26,4 +26,9 @@ export default class MatchService implements i.IMatchService {
     if (updatedMatch === 1) return 'Finished';
     return 'Not Updated';
   }
+
+  async updateMatch(id: string, payLoad: i.IUpdateMatch): Promise<number> {
+    const updatedMatch = await this.MatchRepository.updateMatch(id, payLoad);
+    return updatedMatch;
+  }
 }

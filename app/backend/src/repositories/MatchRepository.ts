@@ -51,4 +51,11 @@ export default class MatchRepository implements i.IMatchRepository {
     const [updatedMatch] = await this.model.update({ inProgress: false }, { where: { id } });
     return updatedMatch;
   }
+
+  async updateMatch(id: string, payLoad: i.IUpdateMatch): Promise<number> {
+    const { homeTeamGoals, awayTeamGoals } = payLoad;
+    const [updatedMatch] = await this.model
+      .update({ homeTeamGoals, awayTeamGoals }, { where: { id } });
+    return updatedMatch;
+  }
 }
