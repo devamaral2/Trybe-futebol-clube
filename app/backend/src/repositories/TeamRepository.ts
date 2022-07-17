@@ -12,7 +12,29 @@ export default class TeamRepository implements i.ITeamRepository {
     return teams;
   }
 
+  async getAllHomeAndAwayMatches() {
+    const teams = await this.model.findAll({ include: [
+      {
+        model: Match,
+        as: 'homeMatches',
+        where: { inProgress: false },
+        attributes: { exclude: ['id', 'homeTeam', 'awayTeam', 'inProgress'] },
+      },
+      {
+        model: Match,
+        as: 'awayMatches',
+        where: { inProgress: false },
+        attributes: { exclude: ['id', 'homeTeam', 'awayTeam', 'inProgress'] },
+      },
+    ] });
+    return teams;
+  }
+
   async getAllWithMatches(where: string): Promise<any> {
+    if (where === 'all') {
+      const teams = await this.getAllHomeAndAwayMatches();
+      return teams;
+    }
     const teams = await this.model.findAll({ include: [
       {
         model: Match,

@@ -1,5 +1,4 @@
 import Match from '../database/models/match';
-// import { ITeamWithMatches } from '../protocols/teamProtocols';
 import * as i from '../protocols/leaderboardProtocols';
 
 function getPoints(homeTeamGoals: number, awayTeamGoals: number, boardType: string) {
@@ -28,12 +27,6 @@ function getData(homeMatches: Match[], boardType: string): i.ITeamBoardData {
     totalLosses += (points === 0 ? 1 : 0);
     goalsFavor += (boardType === 'homeMatches' ? homeTeamGoals : awayTeamGoals);
     goalsOwn += (boardType === 'homeMatches' ? awayTeamGoals : homeTeamGoals);
-    // totalPoints: acc.totalPoints += points,
-    // totalVictories: acc.totalVictories += (points === 3 ? 1 : 0),
-    // totalDraws: acc.totalDraws += (points === 1 ? 1 : 0),
-    // totalLosses: acc.totalLosses += (points === 0 ? 1 : 0),
-    // goalsFavor: acc.goalsFavor += (boardType === 'home' ? homeTeamGoals : awayTeamGoals),
-    // goalsOwn: acc.goalsOwn += (boardType === 'home' ? awayTeamGoals : homeTeamGoals),
   });
   return ({ totalPoints, totalVictories, totalDraws, totalLosses, goalsFavor, goalsOwn });
 }
@@ -70,7 +63,33 @@ function sortingBoard(unSortedBoard: i.ITeamBoard[]) {
     .sort((teamA: i.ITeamBoard, teamB: i.ITeamBoard) => teamB.totalPoints - teamA.totalPoints);
 }
 
+function sumBoards(homeBoard: i.ITeamBoardData, awayBoard: i.ITeamBoardData) {
+  return ({
+    totalPoints: homeBoard.totalPoints + awayBoard.totalPoints,
+    totalVictories: homeBoard.totalVictories + awayBoard.totalVictories,
+    totalDraws: homeBoard.totalDraws + awayBoard.totalDraws,
+    totalLosses: homeBoard.totalLosses + awayBoard.totalLosses,
+    goalsFavor: homeBoard.goalsFavor + awayBoard.goalsFavor,
+    goalsOwn: homeBoard.goalsOwn + awayBoard.goalsOwn,
+  });
+}
+
+function createCompleteBoard(teams: any): any {
+  const result = teams.map((team: any) => {
+    const matchesLength = team.homeMatches.length + team.awayMatches.length;
+    const homeBoard = getData(team.homeMatches, 'homeMatches');
+    const awayBoard = getData(team.awayMatches, 'awayMatches');
+    const boardData = sumBoards(homeBoard, awayBoard);
+    return creatingStats(team.teamName, boardData, matchesLength);
+  });
+  return result;
+}
+
 function createDataForBoard(teams: any, boardType: string) {
+  if (boardType === 'all') {
+    const result = createCompleteBoard(teams);
+    return sortingBoard(result);
+  }
   const result = teams.map((team: any) => {
     const boardData = getData(team[boardType], boardType);
     return creatingStats(team.teamName, boardData, team[boardType].length);
