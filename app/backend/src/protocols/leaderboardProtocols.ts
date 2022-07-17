@@ -15,5 +15,5 @@ export interface ITeamBoard extends ITeamBoardData {
 }
 
 export interface ILeaderboardService {
-  createBoard(): Promise<string>
+  createBoard(boardType: string): Promise<ITeamBoard[]>;
 }

@@ -1,41 +1,47 @@
 import Match from '../database/models/match';
-import { ITeamWithMatches } from '../protocols/teamProtocols';
+// import { ITeamWithMatches } from '../protocols/teamProtocols';
 import * as i from '../protocols/leaderboardProtocols';
-
-const initialLeaderboardNumbers = {
-  totalPoints: 0,
-  totalVictories: 0,
-  totalDraws: 0,
-  totalLosses: 0,
-  goalsFavor: 0,
-  goalsOwn: 0,
-};
 
 function getPoints(homeTeamGoals: number, awayTeamGoals: number, boardType: string) {
   if (homeTeamGoals === awayTeamGoals) return 1;
   if (homeTeamGoals > awayTeamGoals) {
-    if (boardType === 'home') return 3;
+    if (boardType === 'homeMatches') return 3;
     return 0;
   }
-  if (boardType === 'away') return 3;
+  if (boardType === 'awayMatches') return 3;
   return 0;
 }
 
 function getData(homeMatches: Match[], boardType: string): i.ITeamBoardData {
-  const teamData = homeMatches.reduce((acc, match): i.ITeamBoardData => {
+  let totalPoints = 0;
+  let totalVictories = 0;
+  let totalDraws = 0;
+  let totalLosses = 0;
+  let goalsFavor = 0;
+  let goalsOwn = 0;
+  homeMatches.forEach((match):void => {
     const { homeTeamGoals, awayTeamGoals } = match;
     const points = getPoints(homeTeamGoals, awayTeamGoals, boardType);
-    // eslint-disable-next-line no-return-assign
-    return ({
-      totalPoints: acc.totalPoints += points,
-      totalVictories: acc.totalVictories += (points === 3 ? 1 : 0),
-      totalDraws: acc.totalDraws += (points === 1 ? 1 : 0),
-      totalLosses: acc.totalLosses += (points === 0 ? 1 : 0),
-      goalsFavor: acc.goalsFavor += (boardType === 'home' ? homeTeamGoals : awayTeamGoals),
-      goalsOwn: acc.goalsOwn += (boardType === 'home' ? awayTeamGoals : homeTeamGoals),
-    });
-  }, initialLeaderboardNumbers);
-  return teamData;
+    totalPoints += points;
+    totalVictories += (points === 3 ? 1 : 0);
+    totalDraws += (points === 1 ? 1 : 0);
+    totalLosses += (points === 0 ? 1 : 0);
+    goalsFavor += (boardType === 'homeMatches' ? homeTeamGoals : awayTeamGoals);
+    goalsOwn += (boardType === 'homeMatches' ? awayTeamGoals : homeTeamGoals);
+    // totalPoints: acc.totalPoints += points,
+    // totalVictories: acc.totalVictories += (points === 3 ? 1 : 0),
+    // totalDraws: acc.totalDraws += (points === 1 ? 1 : 0),
+    // totalLosses: acc.totalLosses += (points === 0 ? 1 : 0),
+    // goalsFavor: acc.goalsFavor += (boardType === 'home' ? homeTeamGoals : awayTeamGoals),
+    // goalsOwn: acc.goalsOwn += (boardType === 'home' ? awayTeamGoals : homeTeamGoals),
+  });
+  return ({ totalPoints, totalVictories, totalDraws, totalLosses, goalsFavor, goalsOwn });
+}
+
+function settingEfficiency(totalPoints: number, totalGames: number) {
+  const efficiency = (totalPoints / (totalGames * 3)) * 100;
+  if (Number.isInteger(efficiency)) return efficiency;
+  return efficiency.toFixed(2);
 }
 
 function creatingStats(name: string, data: i.ITeamBoardData, totalGames: number) {
@@ -52,17 +58,24 @@ function creatingStats(name: string, data: i.ITeamBoardData, totalGames: number)
     goalsFavor,
     goalsOwn,
     goalsBalance: goalsFavor - goalsOwn,
-    efficiency: (totalPoints / (totalGames * 3)) * 100,
+    efficiency: settingEfficiency(totalPoints, totalGames),
   });
 }
 
+function sortingBoard(unSortedBoard: i.ITeamBoard[]) {
+  return unSortedBoard
+    .sort((teamA: i.ITeamBoard, teamB: i.ITeamBoard) => teamA.goalsOwn - teamB.goalsOwn)
+    .sort((teamA: i.ITeamBoard, teamB: i.ITeamBoard) => teamB.goalsFavor - teamA.goalsFavor)
+    .sort((teamA: i.ITeamBoard, teamB: i.ITeamBoard) => teamB.goalsBalance - teamA.goalsBalance)
+    .sort((teamA: i.ITeamBoard, teamB: i.ITeamBoard) => teamB.totalPoints - teamA.totalPoints);
+}
+
 function createDataForBoard(teams: any, boardType: string) {
-  const result = teams.map((team: ITeamWithMatches) => {
-    const teamDataWithoutStatistics = getData(team.homeMatches, boardType);
-    return creatingStats(team.teamName, teamDataWithoutStatistics, team.homeMatches.length);
+  const result = teams.map((team: any) => {
+    const boardData = getData(team[boardType], boardType);
+    return creatingStats(team.teamName, boardData, team[boardType].length);
   });
-  console.log(result);
-  return result;
+  return sortingBoard(result);
 }
 
 export default createDataForBoard;

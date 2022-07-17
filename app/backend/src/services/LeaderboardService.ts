@@ -7,10 +7,8 @@ export default class LeaderboardService implements i.ILeaderboardService {
     this.TeamRepository = TeamRepository;
   }
 
-  async createBoard(): Promise<string> {
-    const boardType = 'home';
-    const teams = await this.TeamRepository.getAllWithMatches('homeMatches');
-    createDataForBoard(teams, boardType);
-    return teams;
+  async createBoard(boardType: string): Promise<i.ITeamBoard[]> {
+    const teams = await this.TeamRepository.getAllWithMatches(boardType);
+    return createDataForBoard(teams, boardType);
   }
 }
