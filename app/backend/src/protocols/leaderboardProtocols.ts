@@ -10,7 +10,7 @@ export interface ITeamBoardData {
 export interface ITeamBoard extends ITeamBoardData {
   name: string,
   goalsBalance: number,
-  efficiency: number,
+  efficiency: number | string,
   totalGames: number,
 }
 

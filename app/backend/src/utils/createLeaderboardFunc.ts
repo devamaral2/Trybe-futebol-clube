@@ -1,5 +1,5 @@
-import Match from '../database/models/match';
 import * as i from '../protocols/leaderboardProtocols';
+import * as it from '../protocols/teamProtocols';
 
 function getPoints(homeTeamGoals: number, awayTeamGoals: number, boardType: string) {
   if (homeTeamGoals === awayTeamGoals) return 1;
@@ -11,14 +11,14 @@ function getPoints(homeTeamGoals: number, awayTeamGoals: number, boardType: stri
   return 0;
 }
 
-function getData(homeMatches: Match[], boardType: string): i.ITeamBoardData {
+function getData(homeMatches: it.goals[], boardType: string): i.ITeamBoardData {
   let totalPoints = 0;
   let totalVictories = 0;
   let totalDraws = 0;
   let totalLosses = 0;
   let goalsFavor = 0;
   let goalsOwn = 0;
-  homeMatches.forEach((match):void => {
+  homeMatches.forEach((match: it.goals):void => {
     const { homeTeamGoals, awayTeamGoals } = match;
     const points = getPoints(homeTeamGoals, awayTeamGoals, boardType);
     totalPoints += points;
@@ -74,8 +74,8 @@ function sumBoards(homeBoard: i.ITeamBoardData, awayBoard: i.ITeamBoardData) {
   });
 }
 
-function createCompleteBoard(teams: any): any {
-  const result = teams.map((team: any) => {
+function createCompleteBoard(teams: it.ITeamWithMatches[]): i.ITeamBoard[] {
+  const result = teams.map((team: it.ITeamWithMatches) => {
     const matchesLength = team.homeMatches.length + team.awayMatches.length;
     const homeBoard = getData(team.homeMatches, 'homeMatches');
     const awayBoard = getData(team.awayMatches, 'awayMatches');
@@ -85,12 +85,16 @@ function createCompleteBoard(teams: any): any {
   return result;
 }
 
-function createDataForBoard(teams: any, boardType: string) {
+function createDataForBoard(
+  teams: it.ITeamWithMatches[],
+  boardType: it.IBoardType,
+): i.ITeamBoard[] {
   if (boardType === 'all') {
     const result = createCompleteBoard(teams);
     return sortingBoard(result);
   }
-  const result = teams.map((team: any) => {
+  // const boardTypeExist = boardType === 'homeMatches' ? 'homeMatches' : 'awayMatches';
+  const result: i.ITeamBoard[] = teams.map((team: it.ITeamWithMatches) => {
     const boardData = getData(team[boardType], boardType);
     return creatingStats(team.teamName, boardData, team[boardType].length);
   });

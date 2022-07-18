@@ -1,5 +1,6 @@
 import { ITeamRepository } from '../protocols/teamProtocols';
 import * as i from '../protocols/leaderboardProtocols';
+import * as it from '../protocols/teamProtocols';
 import createDataForBoard from '../utils/createLeaderboardFunc';
 
 export default class LeaderboardService implements i.ILeaderboardService {
@@ -7,7 +8,7 @@ export default class LeaderboardService implements i.ILeaderboardService {
     this.TeamRepository = TeamRepository;
   }
 
-  async createBoard(boardType: string): Promise<i.ITeamBoard[]> {
+  async createBoard(boardType: it.IBoardType): Promise<i.ITeamBoard[]> {
     const teams = await this.TeamRepository.getAllWithMatches(boardType);
     return createDataForBoard(teams, boardType);
   }

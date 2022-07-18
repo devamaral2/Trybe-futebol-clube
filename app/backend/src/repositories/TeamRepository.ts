@@ -12,7 +12,7 @@ export default class TeamRepository implements i.ITeamRepository {
     return teams;
   }
 
-  async getAllHomeAndAwayMatches() {
+  async getAllHomeAndAwayMatches(): Promise<any> {
     const teams = await this.model.findAll({ include: [
       {
         model: Match,
@@ -30,7 +30,7 @@ export default class TeamRepository implements i.ITeamRepository {
     return teams;
   }
 
-  async getAllWithMatches(where: string): Promise<any> {
+  async getAllWithMatches(where: i.IBoardType): Promise<any> {
     if (where === 'all') {
       const teams = await this.getAllHomeAndAwayMatches();
       return teams;
