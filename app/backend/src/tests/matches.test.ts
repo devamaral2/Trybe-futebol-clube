@@ -37,37 +37,38 @@ describe('Rota /matches e /matches/search: caso de sucesso', () => {
   });
 });
 
-// describe('Rota /matches create: caso de sucesso', () => {
-//   const newMatch = {
-//     homeTeam: 10, 
-//     awayTeam: 8,
-//     homeTeamGoals: 2,
-//     awayTeamGoals: 2
-//   }
-//   const result = {
-//     id: 1,
-//     homeTeam: 10, 
-//     awayTeam: 8,
-//     homeTeamGoals: 2,
-//     awayTeamGoals: 2,
-//     inProgress: true,
-//   }
-//   before(() => {
-//     sinon.stub(Match, 'create')
-//       .resolves(result as any) 
-//   });
+describe('Rota /matches create: caso de sucesso', () => {
+  const newMatch = {
+    homeTeam: 10, 
+    awayTeam: 8,
+    homeTeamGoals: 2,
+    awayTeamGoals: 2
+  }
+  const result = {
+    id: 1,
+    homeTeam: 10, 
+    awayTeam: 8,
+    homeTeamGoals: 2,
+    awayTeamGoals: 2,
+    inProgress: true,
+  }
+  before(() => {
+    sinon.stub(Match, 'create')
+      .resolves(result as any) 
+  });
 
-//   after(() => {
-//     (Match.create as sinon.SinonStub)
-//       .restore();
-//   })
+  after(() => {
+    (Match.create as sinon.SinonStub)
+      .restore();
+  })
 
-//   it('uma nova match é adicionada a db', async () => {
-//     const response = await chai.request(app).post('/matches').send(newMatch);
-//     expect(response.status).to.be.equal(201);
-//     expect(response.body).to.be.eql(result); 
-//   });
-// });
+  it('uma nova match é adicionada a db', async () => {
+    const getToken = await chai.request(app).post('/login').send({ email: 'admin@admin.com', password: 'secret_admin'})
+    const response = await chai.request(app).post('/matches').set({"Authorization": getToken.body.token}).send(newMatch);
+    expect(response.status).to.be.equal(201);
+    expect(response.body).to.be.eql(result); 
+  });
+});
 
 describe('Rota /:id/finish Match patch: caso de sucesso', () => {
 
@@ -91,6 +92,11 @@ describe('Rota /:id/finish Match patch: caso de sucesso', () => {
 
 describe('Rota /:id/ Match patch: caso de sucesso', () => {
 
+  const updatedMatch = {
+    homeTeamGoals: 3,
+    awayTeamGoals: 1
+  }
+
   before(() => {
     sinon.stub(Match, 'update')
       .resolves([1] as any) 
@@ -102,7 +108,7 @@ describe('Rota /:id/ Match patch: caso de sucesso', () => {
   })
 
   it('a match da id de referência é atualizada', async () => {
-    const response = await chai.request(app).patch('/matches/45');
+    const response = await chai.request(app).patch('/matches/45').send(updatedMatch);
     expect(response.status).to.be.equal(200);
     expect(response.body).to.be.eql({ done: 1 }); 
   });
