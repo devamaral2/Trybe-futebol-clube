@@ -1,5 +1,12 @@
-import * as i from '../protocols/leaderboardProtocols';
+/* eslint-disable function-paren-newline */
 import * as it from '../protocols/teamProtocols';
+import * as i from '../protocols/leaderboardProtocols';
+
+function settingEfficiency(totalPoints: number, totalGames: number) {
+  const efficiency = (totalPoints / (totalGames * 3)) * 100;
+  if (Number.isInteger(efficiency)) return efficiency;
+  return Number(efficiency.toFixed(2));
+}
 
 function getPoints(homeTeamGoals: number, awayTeamGoals: number, boardType: string) {
   if (homeTeamGoals === awayTeamGoals) return 1;
@@ -11,47 +18,34 @@ function getPoints(homeTeamGoals: number, awayTeamGoals: number, boardType: stri
   return 0;
 }
 
-function getData(homeMatches: it.goals[], boardType: string): i.ITeamBoardData {
-  let totalPoints = 0;
-  let totalVictories = 0;
-  let totalDraws = 0;
-  let totalLosses = 0;
-  let goalsFavor = 0;
-  let goalsOwn = 0;
-  homeMatches.forEach((match: it.goals):void => {
+// eslint-disable-next-line max-lines-per-function
+function getData(name: string, matches: it.goals[], boardType: string): i.ITeamBoard {
+  return matches.reduce((acc: i.ITeamBoard, match: it.goals) => {
     const { homeTeamGoals, awayTeamGoals } = match;
     const points = getPoints(homeTeamGoals, awayTeamGoals, boardType);
-    totalPoints += points;
-    totalVictories += (points === 3 ? 1 : 0);
-    totalDraws += (points === 1 ? 1 : 0);
-    totalLosses += (points === 0 ? 1 : 0);
-    goalsFavor += (boardType === 'homeMatches' ? homeTeamGoals : awayTeamGoals);
-    goalsOwn += (boardType === 'homeMatches' ? awayTeamGoals : homeTeamGoals);
-  });
-  return ({ totalPoints, totalVictories, totalDraws, totalLosses, goalsFavor, goalsOwn });
-}
-
-function settingEfficiency(totalPoints: number, totalGames: number) {
-  const efficiency = (totalPoints / (totalGames * 3)) * 100;
-  if (Number.isInteger(efficiency)) return efficiency;
-  return efficiency.toFixed(2);
-}
-
-function creatingStats(name: string, data: i.ITeamBoardData, totalGames: number) {
-  const {
-    totalPoints, totalLosses, totalVictories, totalDraws, goalsFavor, goalsOwn,
-  } = data;
-  return ({
-    name,
-    totalPoints,
-    totalGames,
-    totalVictories,
-    totalDraws,
-    totalLosses,
-    goalsFavor,
-    goalsOwn,
-    goalsBalance: goalsFavor - goalsOwn,
-    efficiency: settingEfficiency(totalPoints, totalGames),
+    // eslint-disable-next-line no-return-assign
+    return ({
+      name,
+      totalPoints: acc.totalPoints += points,
+      totalGames: acc.totalGames += 1,
+      totalVictories: acc.totalVictories += (points === 3 ? 1 : 0),
+      totalDraws: acc.totalDraws += (points === 1 ? 1 : 0),
+      totalLosses: acc.totalLosses += (points === 0 ? 1 : 0),
+      goalsFavor: acc.goalsFavor += (boardType === 'homeMatches' ? homeTeamGoals : awayTeamGoals),
+      goalsOwn: acc.goalsOwn += (boardType === 'homeMatches' ? awayTeamGoals : homeTeamGoals),
+      goalsBalance: acc.goalsFavor - acc.goalsOwn,
+      efficiency: settingEfficiency(acc.totalPoints, acc.totalGames) });
+  }, {
+    name: '',
+    totalPoints: 0,
+    totalGames: 0,
+    totalVictories: 0,
+    totalDraws: 0,
+    totalLosses: 0,
+    goalsFavor: 0,
+    goalsOwn: 0,
+    goalsBalance: 0,
+    efficiency: 0,
   });
 }
 
@@ -63,24 +57,31 @@ function sortingBoard(unSortedBoard: i.ITeamBoard[]) {
     .sort((teamA: i.ITeamBoard, teamB: i.ITeamBoard) => teamB.totalPoints - teamA.totalPoints);
 }
 
-function sumBoards(homeBoard: i.ITeamBoardData, awayBoard: i.ITeamBoardData) {
+function sumBoards(homeBoard: i.ITeamBoard, awayBoard: i.ITeamBoard) {
+  const { name } = homeBoard;
+  const goalsFavor = homeBoard.goalsFavor + awayBoard.goalsFavor;
+  const goalsOwn = homeBoard.goalsOwn + awayBoard.goalsOwn;
+  const totalPoints = homeBoard.totalPoints + awayBoard.totalPoints;
+  const totalGames = homeBoard.totalGames + awayBoard.totalGames;
   return ({
-    totalPoints: homeBoard.totalPoints + awayBoard.totalPoints,
+    name,
+    totalPoints,
+    totalGames,
+    goalsFavor,
+    goalsOwn,
     totalVictories: homeBoard.totalVictories + awayBoard.totalVictories,
     totalDraws: homeBoard.totalDraws + awayBoard.totalDraws,
     totalLosses: homeBoard.totalLosses + awayBoard.totalLosses,
-    goalsFavor: homeBoard.goalsFavor + awayBoard.goalsFavor,
-    goalsOwn: homeBoard.goalsOwn + awayBoard.goalsOwn,
+    goalsBalance: goalsFavor - goalsOwn,
+    efficiency: settingEfficiency(totalPoints, totalGames),
   });
 }
 
 function createCompleteBoard(teams: it.ITeamWithMatches[]): i.ITeamBoard[] {
   const result = teams.map((team: it.ITeamWithMatches) => {
-    const matchesLength = team.homeMatches.length + team.awayMatches.length;
-    const homeBoard = getData(team.homeMatches, 'homeMatches');
-    const awayBoard = getData(team.awayMatches, 'awayMatches');
-    const boardData = sumBoards(homeBoard, awayBoard);
-    return creatingStats(team.teamName, boardData, matchesLength);
+    const homeBoard = getData(team.teamName, team.homeMatches, 'homeMatches');
+    const awayBoard = getData(team.teamName, team.awayMatches, 'awayMatches');
+    return sumBoards(homeBoard, awayBoard);
   });
   return result;
 }
@@ -93,11 +94,8 @@ function createDataForBoard(
     const result = createCompleteBoard(teams);
     return sortingBoard(result);
   }
-  // const boardTypeExist = boardType === 'homeMatches' ? 'homeMatches' : 'awayMatches';
-  const result: i.ITeamBoard[] = teams.map((team: it.ITeamWithMatches) => {
-    const boardData = getData(team[boardType], boardType);
-    return creatingStats(team.teamName, boardData, team[boardType].length);
-  });
+  const result: i.ITeamBoard[] = teams.map((team: it.ITeamWithMatches) =>
+    getData(team.teamName, team[boardType], boardType));
   return sortingBoard(result);
 }
 
